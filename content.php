@@ -30,6 +30,9 @@ if (!isset($_GET['page']) || $_GET['page'] == null) {
     case 'legislations':
       include "app/pages/legislations.php";
       break;
+    case 'legislation':
+      include "app/pages/legislation.php";
+      break;
 
 
       #Quando não encontrar pagina

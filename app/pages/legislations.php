@@ -12,7 +12,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="card pd-20 pd-sm-40">
   <h6 class="card-body-title">Leis e Decretos </h6>
   <p class="mg-b-20 mg-sm-b-30">
-    <a href="?page=ordinance&nav=1" class="btn btn-outline-primary border-0">
+    <a href="?page=legislation&nav=1" class="btn btn-outline-primary border-0">
       <span class="mdil mdil-plus tx-20 "></span> Nava Legislação
     </a>
   </p>
