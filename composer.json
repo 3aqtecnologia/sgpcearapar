@@ -1,0 +1,9 @@
+{
+    "config": {
+        "vendor-dir": "app/vendor"
+    },
+    "require": {
+        "dompdf/dompdf": "^2.0",
+        "datatables/datatables": "^1.10"
+    }
+}
