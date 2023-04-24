@@ -28,6 +28,8 @@
     'ordinances' => 'active  show-sub',
     'ordinance' => 'active  show-sub',
     'legislations' => 'active  show-sub',
+    'legislation' => 'active  show-sub',
+    'managerOrdinances' => 'active  ',
     default => ''
   };
 
@@ -50,10 +52,10 @@
         </a>
         <ul class="nav-sub">
           <li class="nav-item">
-            <a href="?page=ordinances&nav=1" class="nav-link <?= $documents ?>  ">Portarias</a>
+            <a href="?page=ordinances&nav=1" class="nav-link <?= $_GET['page'] == 'ordinances' ||  $_GET['page'] == 'ordinance' ?  $documents : '' ?>  ">Portarias</a>
           </li>
           <li class="nav-item">
-            <a href="?page=legislations&nav=1" class="nav-link <?= $documents ?>  ">Legislação</a>
+            <a href="?page=legislations&nav=1" class="nav-link <?= $_GET['page'] == 'legislations' ||  $_GET['page'] == 'legislation' ?  $documents : '' ?>  ">Legislação</a>
           </li>
         </ul>
       </li>
@@ -238,12 +240,18 @@
     <span class="d-block pd-15 tx-12">Loading messages...</span>
   </div>
   <!-- #chatMenu -->
-  <div id="settingMenu" class="tab-pane <?= $_GET['page'] == 'users' || $_GET['page'] == 'user' ? 'active' : ''; ?>">
+  <div id="settingMenu" class="tab-pane <?= $_GET['page'] == 'users' || $_GET['page'] == 'managerOrdinances' || $_GET['page'] == 'user' ? 'active' : ''; ?>">
     <ul class="nav am-sideleft-menu">
       <li class="nav-item">
         <a href="?page=users&settings=1" class="nav-link <?= $_GET['page'] == 'users' || $_GET['page'] == 'user' ? 'active' : ''; ?>">
           <i class="icon ion-ios-people-outline"></i>
           <span>Usuários</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="?page=managerOrdinances&settings=1" class="nav-link <?= $documents ?>">
+          <i class="icon tx-17 mr-2 mdil mdil-tag"></i>
+          <span>Tipos de Portária</span>
         </a>
       </li>
       <!-- nav-item -->

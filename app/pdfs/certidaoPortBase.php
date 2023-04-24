@@ -84,14 +84,12 @@ $refer = $result[0];
       padding-left: 1rem;
       letter-spacing: 2px;
       font-family: 'Poppins';
-
     }
 
     #footer .page:after {
       margin-left: 98%;
       padding: 5px;
       content: counter(page, georgian);
-
     }
 
     #content {
@@ -103,7 +101,6 @@ $refer = $result[0];
       font-weight: lighter;
       font-size: .8rem;
       font-family: 'Poppins';
-
     }
 
     .title {
@@ -184,7 +181,21 @@ $refer = $result[0];
             <tr class="text-center">
               <th class="text-center" style="text-transform: uppercase;" scope="row"><?= $refer['exercicio'] ?></th>
               <td class="text-center text-uppercase" style="text-transform: uppercase;"><?= dataExtenso('', '', $refer['data_portaria']); ?></td>
-              <td class="text-center text-uppercase" style="text-transform: uppercase;"><?= $refer['tipo_portaria'] ?></td>
+              <td class="text-center text-uppercase" style="text-transform: uppercase;">
+
+                <?php
+                $typeOrdinance = match ($refer['tipo_portaria']) {
+                  '0000000001' => 'NOMEAÇÃO',
+                  '0000000002' => 'EXONERAÇÃO ',
+                  '0000000003' => 'DESIGNAÇÃO',
+                  '0000000004' => 'DESTITUIÇÃO',
+                  '0000000005' => 'INSTITUIÇÃO DE COMITÊ/COMISSÃO',
+                  '0000000006' => 'REVOGAÇÃO ',
+                  '0000000007' => 'NOMEAÇÃO INTERINA',
+                  default => ''
+                };
+                echo $typeOrdinance;
+                ?></td>
               <td class="text-center text-uppercase" style="text-transform: uppercase;"><?= $refer['agente'] ?></td>
               <td class="text-center text-uppercase" style="text-transform: uppercase;"><?= $refer['cargo'] ?></td>
             </tr>

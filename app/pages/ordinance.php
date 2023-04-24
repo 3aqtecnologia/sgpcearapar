@@ -1,9 +1,11 @@
         <?php
         if (isset($_GET['id'])) {
-          $stmt = $connection->prepare("SELECT * FROM portarias WHERE  uuid_user LIKE '{$_GET['id']}%'");
+          $id = $_GET['id'];
+          $stmt = $connection->prepare("SELECT * FROM portarias WHERE id = :id");
+          $stmt->bindParam(':id', $id);
           $stmt->execute();
           $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-          $user = $result[0];
+          $edit_ordinace = $result[0];
         }
         $dados = filter_input_array(INPUT_POST, FILTER_DEFAULT);
         // echo '<pre>';
@@ -13,7 +15,6 @@
         if (isset($dados['savePort'])) {
           $uploaddir = file_exists('upload/portarias/') ? 'upload/portarias/' : mkdir('upload/portarias/', 0777, true);
           $uploadfile = $uploaddir . basename($_FILES['arquivo']['name']);
-
           try {
             move_uploaded_file($_FILES['arquivo']['tmp_name'], $uploadfile);
 
@@ -41,8 +42,74 @@
           }
         } elseif (isset($dados['editPort'])) {
           try {
+            if ($_FILES['arquivo']['name'] == '') {
+              $queryEditOrdinance = "UPDATE portarias SET exercicio = :exercicio, nPort = :nPort, data_portaria = :data_portaria, tipo_portaria = :tipo_portaria, cargo = :cargo, agente = :agente, descricao_portaria = :descricao_portaria WHERE id = :id";
+              $execEditOrdinance = $connection->prepare($queryEditOrdinance);
+              $execEditOrdinance->execute(array(
+                'id' => $id,
+                ':exercicio' => $dados['exercicio'],
+                ':nPort' => $dados['nPort'],
+                ':data_portaria' => $dados['data_portaria'],
+                ':tipo_portaria' => strtoupper($dados['tipo_portaria']),
+                ':cargo' => strtoupper($dados['cargo']),
+                ':agente' => strtoupper($dados['agente']),
+                ':descricao_portaria' => nl2br($dados['descricao_portaria']),
+              ));
+            } else {
+              // Verifica se o arquivo existe
+              if (file_exists($edit_ordinace['arquivo'])) {
+                // Apaga o arquivo
+                unlink($edit_ordinace['arquivo']);
+              }
+              $uploaddir = file_exists('upload/portarias/') ? 'upload/portarias/' : mkdir('upload/portarias/', 0777, true);
+              $uploadfile = $uploaddir . basename($_FILES['arquivo']['name']);
+              move_uploaded_file($_FILES['arquivo']['tmp_name'], $uploadfile);
+              $queryEditOrdinance = "UPDATE portarias SET exercicio = :exercicio, nPort = :nPort, data_portaria = :data_portaria, tipo_portaria = :tipo_portaria, cargo = :cargo, agente = :agente, arquivo = :arquivo, descricao_portaria = :descricao_portaria WHERE id = :id";
+              $execEditOrdinance = $connection->prepare($queryEditOrdinance);
+              $execEditOrdinance->execute(array(
+                'id' => $id,
+                ':exercicio' => $dados['exercicio'],
+                ':nPort' => $dados['nPort'],
+                ':data_portaria' => $dados['data_portaria'],
+                ':tipo_portaria' => strtoupper($dados['tipo_portaria']),
+                ':cargo' => strtoupper($dados['cargo']),
+                ':agente' => strtoupper($dados['agente']),
+                'arquivo' => $uploadfile,
+                ':descricao_portaria' => nl2br($dados['descricao_portaria']),
+              ));
+            }
+            // Verifica se a consulta foi bem sucedida
+            if ($execEditOrdinance->rowCount() > 0) {
+              echo '
+              <script>
+                alert("Registro atualizado com sucesso!");
+                setTimeout(function() {
+                  history.go(-2);
+                }, 2000);
+              </script>
+              <div class="alert alert-success" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center justify-content-start">
+                  <i class="icon ion-ios-checkmark alert-icon tx-32 mg-t-5 mg-xs-t-0"></i>
+                  <span>Registro atualizado com sucesso!</span>
+                </div><!-- d-flex -->
+              </div><!-- alert -->';
+            } else {
+              echo '
+              <div class="alert alert-danger" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="d-flex align-items-center justify-content-start">
+                  <i class="icon ion-ios-close alert-icon tx-32 mg-t-5 mg-xs-t-0"></i>
+                  <span>Não foi possível atualizar o registro.</span>
+                </div><!-- d-flex -->
+              </div><!-- alert -->';
+            }
           } catch (PDOException $erro) {
-            echo "<script>alert('Erro ao Atualizar os dados do usuários, tente novamente'. $erro); </script>";
+            echo "<script>alert('Erro ao Atualizar, tente novamente'. $erro); </script>";
           }
         }
 
@@ -50,10 +117,11 @@
         <div class="card pd-20 pd-sm-40">
           <h6 class="card-body-title text-primary">
             <span class="mdi mdi-file-document-plus-outline tx-20"></span>
-            &nbsp;Nova Portaria
+            &nbsp;<?= isset($_GET['id']) ? 'Editar Portaria' : 'Nova Portaria' ?>
           </h6>
           <p class="mg-b-20 mg-sm-b-30">
-            Cadastre uma nova portaria que será publicada no site.
+            <?= isset($_GET['id']) ? 'Edite os dados de uma portaria publicada no site.' : 'Cadastre uma nova portaria que será publicada no site.' ?>
+
           </p>
           <form action="" method="POST" enctype="multipart/form-data" data-parsley-validate>
             <div class="form-layout">
@@ -61,30 +129,34 @@
                 <div class="col-lg-3">
                   <div class="form-group">
                     <label class="form-control-label">Exercício: <span class="tx-danger">*</span></label>
-                    <input class="form-control" type="number" name="exercicio" min="2018" max="2099" step="1" value="" placeholder="Informe o exercício" required>
+                    <input class="form-control" type="number" name="exercicio" min="2018" max="2099" step="1" value="<?= $edit_ordinace['exercicio'] ?>" placeholder="Informe o exercício" required>
                   </div>
                 </div><!-- col-2 -->
                 <div class="col-lg-3">
                   <div class="form-group">
                     <label class="form-control-label">Nº da Portaria: <span class="tx-danger">*</span></label>
-                    <input class="form-control" type="number" min="1" max="999" step="1" name="nPort" value="<?= $user['nPort']; ?>" placeholder="Informe o Nº" required>
+                    <input class="form-control" type="number" min="1" max="999" step="1" name="nPort" value="<?= $edit_ordinace['nPort']; ?>" placeholder="Informe o Nº" required>
                   </div>
                 </div><!-- col-2 -->
                 <div class="col-lg-2">
                   <div class="form-group mg-b-10-force">
                     <label class="form-control-label">Data da Portaria: <span class="tx-danger">*</span></label>
-                    <input class="form-control" type="date" name="data_portaria" value="<?= $user['data_portaria']; ?>" required>
+                    <input class="form-control" type="date" name="data_portaria" value="<?= $edit_ordinace['data_portaria']; ?>" required>
                   </div>
                 </div><!-- col-6 -->
                 <div class="col-lg-4">
                   <div id="slWrapper" class="form-group mg-b-10-force parsley-select">
                     <label class="form-control-label">Tipo de Portaria: <span class="tx-danger">*</span></label>
                     <select class="form-control select2" name="tipo_portaria" data-placeholder="Selecione o Tipo " data-parsley-class-handler="#slWrapper" data-parsley-errors-container="#slErrorContainer" required>
-                      <option label="Selecione o Tipo"></option>
-                      <option value="NOMEAÇÃO">NOMEAÇÃO</option>
-                      <option value="EXONERAÇÃO">EXONERAÇÃO</option>
-                      <option value="DESIGNAÇÃO">DESIGNAÇÃO</option>
-                      <option value="INSTITUIÇÃO DE COMITÊ/COMISSÃO">INSTITUIÇÃO DE COMITÊ/COMISSÃO</option>
+                      <?php
+                      $stmt = $connection->prepare("SELECT * FROM type_ordinance ORDER BY title_type_ordinance DESC");
+                      $stmt->execute();
+                      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                      foreach ($result as $type_ordinace) {
+                      ?>
+                        <?= isset($_GET['id']) ? '' : '<option selected dirname label="Selecione o Tipo"></option>' ?>
+                        <option <?= $edit_ordinace['tipo_portaria'] == $type_ordinace['id_type_ordinance'] ? 'selected' : '' ?> value="<?= $type_ordinace['id_type_ordinance'] ?>"><?= $type_ordinace['title_type_ordinance'] ?></option>
+                      <?php } ?>
                     </select>
                     <div id="slErrorContainer"></div>
                   </div>
@@ -93,25 +165,25 @@
                 <div class="col-lg-6">
                   <div class="form-group mg-b-10-force">
                     <label class="form-control-label">Cargo: <span class="tx-danger">*</span></label>
-                    <input class="form-control" type="text" name="cargo" value="<?= $user['email_user']; ?>" placeholder="Informe o cargo" required>
+                    <input class="form-control" type="text" name="cargo" value="<?= $edit_ordinace['cargo']; ?>" placeholder="Informe o cargo" required>
                   </div>
                 </div><!-- col-4 -->
                 <div class="col-lg-6">
                   <div class="form-group mg-b-10-force">
                     <label class="form-control-label">Nomeado(s): <span class="tx-danger">*</span></label>
-                    <input class="form-control" type="text" name="agente" value="<?= $user['agente']; ?>" placeholder="Informe o(s) Nome(s) do(s) Servidore(s)" required>
+                    <input class="form-control" type="text" name="agente" value="<?= $edit_ordinace['agente']; ?>" placeholder="Informe o(s) Nome(s) do(s) Servidore(s)" required>
                   </div>
                 </div><!-- col-2 -->
                 <div class="col-lg-12">
                   <div class="form-group mg-b-10-force">
                     <label class="form-control-label">Descrição da Poratria: <span class="tx-danger">*</span></label>
-                    <textarea rows="5" class="form-control" name="descricao_portaria" placeholder="Descreva a portaria" required></textarea>
+                    <textarea rows="5" class="form-control" name="descricao_portaria" placeholder="Descreva a portaria" required><?= nl2br($edit_ordinace['descricao_portaria']); ?></textarea>
                   </div>
                 </div><!-- col-12 -->
                 <div class="col-lg-12">
                   <div class="form-group mg-b-10-force">
                     <label class="form-control-label">Arquivo da portaria: <span class="tx-danger">*</span></label>
-                    <input type="file" class="form-control" id="arquivo" name="arquivo" required>
+                    <input type="file" class="form-control" id="arquivo" name="arquivo" <?= isset($_GET['id']) ? '' : 'required' ?>>
                   </div>
                 </div><!-- col-12 -->
           </form>
@@ -167,9 +239,9 @@
             });
             // passCPF
 
-            $('#cpf_user').change(function() {
-              $("#cpf_user").unmask();;
-              let cpf = $('#cpf_user').val();
+            $('#cpf_edit_ordinace').change(function() {
+              $("#cpf_edit_ordinace").unmask();;
+              let cpf = $('#cpf_edit_ordinace').val();
               let p1 = cpf.substr(0, 3)
               let p2 = cpf.substr(-2)
               let pass = p1 + p2

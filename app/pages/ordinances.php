@@ -53,7 +53,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <!-- <i class="mdil mdil-pencil tx-26 tx-md-18"></i> -->
                   <span class="mdi mdi-file-certificate-outline tx-26 tx-md-20"></span>
                 </a>
-                <a href=">" target="_new" class="btn btn-outline-primary border-0" data-toggle="tooltip" data-placement="top" title="Editar Dados">
+                <a href="?page=ordinance&nav=1&id=<?= $row['id'] ?>"  class="btn btn-outline-primary border-0" data-toggle="tooltip" data-placement="top" title="Editar Dados">
                   <!-- <i class="mdil mdil-pencil tx-26 tx-md-18"></i> -->
                   <span class="mdi mdi-pencil-outline tx-26 tx-md-20"></span>
                 </a>

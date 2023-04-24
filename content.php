@@ -25,6 +25,9 @@ if (!isset($_GET['page']) || $_GET['page'] == null) {
     case 'ordinance':
       include "app/pages/ordinance.php";
       break;
+    case 'managerOrdinances':
+      include "app/pages/managerOrdinances.php";
+      break;
 
       #legislations
     case 'legislations':

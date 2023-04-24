@@ -23,7 +23,6 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <tr>
           <th scope="col" class="wd-5p text-center">TIPO</th>
           <th scope="col" class="wd-10p text-center">INSTÂNCIA</th>
-          <th scope="col" class="wd-5p text-center">Nº DA LEGISLAÇÃO</th>
           <th scope="col" class="wd-10p text-center">DATA DA LEGISLAÇÃO</th>
           <th scope="col" class="wd-40p text-center">DESCRIÇÃO DA LEGISLAÇÃO</th>
           <th scope="col" class="wd-10p text-center">
@@ -35,24 +34,18 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($result as $row) { ?>
 
           <tr scope="row">
-            <td class="align-center align-middle">
+            <td class="align-center align-middle text-uppercase">
               <?= strtoupper($row['typeLegislation']) ?>
             </td>
-
             <td class="text-center  align-middle">
               <?= strtoupper($row['instanceLegislation']) ?>
             </td>
             <td class="text-center  align-middle">
-              <?= number_format($row['nuberLegislation'], 0, '', '.') ?>
-            </td>
-            <td class="text-center  align-middle">
-
               <?= strtolower(dataExtensoDB('', $row['dateLegislation'])); ?>
             </td>
-            <td class="wrapper align-middle ">
+            <td class="wrapper align-middle text-uppercase ">
               <?= nl2br($row['descriptionLegislation']) ?>
             </td>
-
             <td class="text-center  align-middle">
               <!-- <a href="#" class="btn btn-outline-primary btn-icon rounded-circle border-0" data-toggle="tooltip" data-placement="top" title="Editar Usuário">
                 <div><i class="mdil mdil-pencil tx-24"></i></div>
@@ -63,7 +56,7 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <span class="mdi mdi-file-download-outline tx-26 tx-md-20"></span>
                 </a>
 
-                <a href=">" target="_new" class="btn btn-outline-primary border-0" data-toggle="tooltip" data-placement="top" title="Editar Dados">
+                <a href="?page=legislation&nav=1&id=<?= $row['idLegislation'] ?>" class="btn btn-outline-primary border-0" data-toggle="tooltip" data-placement="top" title="Editar Dados">
                   <!-- <i class="mdil mdil-pencil tx-26 tx-md-18"></i> -->
                   <span class="mdi mdi-pencil-outline tx-26 tx-md-20"></span>
                 </a>
